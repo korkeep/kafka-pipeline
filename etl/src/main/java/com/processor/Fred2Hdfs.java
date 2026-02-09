@@ -1,7 +1,13 @@
 package com.processor;
 
+import java.io.BufferedWriter;
+import java.io.OutputStreamWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Predicate;
@@ -9,6 +15,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
@@ -19,8 +26,13 @@ import com.util.US_STATES;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 
 public class Fred2Hdfs {
     
@@ -113,5 +125,76 @@ public class Fred2Hdfs {
         }).collect(Collectors.toList());  
         
         return listData;
+    }
+
+    public void writeCsv2Hdfs(String filename, List<EtlColumnPojo> nodeList) throws Exception{
+        Path hadoopPath = new Path(filename);
+
+        FSDataOutputStream hadoop0utStream = null;
+        BufferedWriter bw = null;
+
+        if(nodeList.size() != 0){
+            if(hadoopFs.exists(hadoopPath)){
+                hadoop0utStream = hadoopFs.append(hadoopPath);
+                bw = new BufferedWriter(new OutputStreamWriter(hadoop0utStream, StandardCharsets.UTF_8));
+            }
+            else{
+                hadoop0utStream = hadoopFs.create(hadoopPath, true);
+                bw = new BufferedWriter(new OutputStreamWriter(hadoop0utStream, StandardCharsets.UTF_8));
+                bw.write(nodeList.get(0).getColumns());
+                bw.newLine();
+            }
+
+            for (EtlColumnPojo pojo : nodeList){
+                bw.write(pojo.getValues());
+                bw.newLine();
+            }
+    
+            bw.close();
+            hadoop0utStream.close();
+        }
+    }
+
+
+    public void writeCsv2Local(boolean first, String path, String filename, List<EtlColumnPojo> nodeList) throws Exception {
+        CsvMapper csvMapper = new CsvMapper();
+        csvMapper.configure(JsonGenerator.Feature.IGNORE_UNKNOWN, true);
+        csvMapper.findAndRegisterModules();
+        csvMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        CsvSchema schema = csvMapper.schemaFor(EtlColumnPojo.class).withColumnSeparator(',');
+        if(first){
+            schema = schema.withHeader();
+        }
+        else{
+            schema = schema.withoutHeader();
+        }
+
+        File outputFile = new File(path + filename);
+        OutputStream os = new FileOutputStream(outputFile, true);
+        ObjectWriter ow = csvMapper.writer(schema);
+        ow.writeValue(os, nodeList);
+        os.close();
+    }
+
+    public void clearInputFiles(String path, String filename) throws Exception{
+        Path hadoopPath = new Path(filename);
+
+        if(hadoopFs.exists(hadoopPath)){
+            hadoopFs.delete(hadoopPath, true);
+            System.out.println("clearInputFiles: " + hadoopPath.getName() + "file deleted");
+        }
+
+        File localPath = new File(path + filename);
+        if(localPath.exists()){
+            localPath.delete();
+            System.out.println("clearInputFiles: " + localPath.getName() + "file deleted");
+        }
+    }
+
+    public void closeStream() throws Exception{
+        if(hadoopFs != null){
+            hadoopFs.close();
+        }
     }
 }
