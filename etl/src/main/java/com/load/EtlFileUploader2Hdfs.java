@@ -39,7 +39,7 @@ public class EtlFileUploader2Hdfs {
         return fileName;
     }
 
-    public static void main(Strings[] args) throws Exception{
+    public static void main(String[] args) throws Exception{
         Fred2Hdfs fred = new Fred2Hdfs();
 
         System.out.println("========== Unemployee Annual");
@@ -55,12 +55,118 @@ public class EtlFileUploader2Hdfs {
             } else {
                 fred.writeCsv2Local(false, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "unemployee_annual.csv", etlUnemployeeDataAnnual);
             }
-
-            // TODO
         };
 
+        System.out.println("========== Real Median Household Income");
+
+        fred.clearInputFiles("/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "household_income.csv");
+
+        for(US_STATES state : US_STATES.values()){
+            List<EtlColumnPojo> etlHouseholdIncomeData = fred.getEtlListData(FREQUENCY.YEAR, state, titleHouseholdIncome);
+            fred.writeCsv2Hdfs("household_income.csv", etlHouseholdIncomeData);
+
+            if(state.ordinal() == 0){
+                fred.writeCsv2Local(true, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "household_income.csv", etlHouseholdIncomeData);
+            } else {
+                fred.writeCsv2Local(false, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "household_income.csv", etlHouseholdIncomeData);
+            }
+        };
+
+        System.out.println("========== Total Tax Exemptions");
+
+        fred.clearInputFiles("/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "tax_exemption.csv");
+
+        for(US_STATES state : US_STATES.values()){
+            List<EtlColumnPojo> etlTaxExemptionData = fred.getEtlListData(FREQUENCY.YEAR, state, titleTaxExemption);
+            fred.writeCsv2Hdfs("tax_exemption.csv", etlTaxExemptionData);
+
+            if(state.ordinal() == 0){
+                fred.writeCsv2Local(true, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "tax_exemption.csv", etlTaxExemptionData);
+            } else {
+                fred.writeCsv2Local(false, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "tax_exemption.csv", etlTaxExemptionData);
+            }
+        };
+
+        System.out.println("========== Civilian Labor Force");
+
+        fred.clearInputFiles("/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "civilian_force.csv");
+
+        for(US_STATES state : US_STATES.values()){
+            List<EtlColumnPojo> etlCivilForceData = fred.getEtlListData(FREQUENCY.YEAR, state, titleLaborForce);
+            fred.writeCsv2Hdfs("civilian_force.csv", etlCivilForceData);
+
+            if(state.ordinal() == 0){
+                fred.writeCsv2Local(true, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "civilian_force.csv", etlCivilForceData);
+            } else {
+                fred.writeCsv2Local(false, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "civilian_force.csv", etlCivilForceData);
+            }
+        };
+
+        System.out.println("========== Poverty");
+
+        fred.clearInputFiles("/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "poverty.csv");
+
+        for(US_STATES state : US_STATES.values()){
+            List<EtlColumnPojo> etlPovertyData = fred.getEtlListData(FREQUENCY.YEAR, state, titlePoverty);
+            fred.writeCsv2Hdfs("poverty.csv", etlPovertyData);
+
+            if(state.ordinal() == 0){
+                fred.writeCsv2Local(true, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "poverty.csv", etlPovertyData);
+            } else {
+                fred.writeCsv2Local(false, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "poverty.csv", etlPovertyData);
+            }
+        };
+
+        System.out.println("========== Real GDP");
+
+        fred.clearInputFiles("/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "real_gdp.csv");
+
+        for(US_STATES state : US_STATES.values()){
+            List<EtlColumnPojo> etlRealGDPData = fred.getEtlListData(FREQUENCY.YEAR, state, titleRealGDP);
+            fred.writeCsv2Hdfs("real_gdp.csv", etlRealGDPData);
+
+            if(state.ordinal() == 0){
+                fred.writeCsv2Local(true, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "real_gdp.csv", etlRealGDPData);
+            } else {
+                fred.writeCsv2Local(false, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "real_gdp.csv", etlRealGDPData);
+            }
+        };
+
+        System.out.println("========== Unemployee Monthly");
+
+        fred.clearInputFiles("/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "unemployee_monthly.csv");
+
+        for(US_STATES state : US_STATES.values()){
+            List<EtlColumnPojo> etlUnemployeeData = fred.getEtlListData(FREQUENCY.MONTH, state, titleUnemployee);
+            fred.writeCsv2Hdfs("unemployee_monthly.csv", etlUnemployeeData);
+
+            if(state.ordinal() == 0){
+                fred.writeCsv2Local(true, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "unemployee_monthly.csv", etlUnemployeeData);
+            } else {
+                fred.writeCsv2Local(false, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", "unemployee_monthly.csv", etlUnemployeeData);
+            }
+        };
+
+        System.out.println("========== Earnings");
+
+        for (int i = 0; i < titleEarningsList.size(); i++){
+            fred.clearInputFiles("/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", getFileName(titleEarningsList.get(i)));
+        }
+
+        for (int i = 0; i < titleEarningsList.size(); i++){
+            for(US_STATES state : US_STATES.values()){
+                List<EtlColumnPojo> etlEarningsData = fred.getEtlListData(FREQUENCY.MONTH, state, titleEarningsList.get(i));
+                fred.writeCsv2Hdfs(getFileName(titleEarningsList.get(i)), etlEarningsData);
+    
+                if(state.ordinal() == 0){
+                    fred.writeCsv2Local(true, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", getFileName(titleEarningsList.get(i)), etlEarningsData);
+                } else {
+                    fred.writeCsv2Local(false, "/home/ubuntu/code/bigdata-pipeline/src/main/outputs/", getFileName(titleEarningsList.get(i)), etlEarningsData);
+                }
+            }
+        }
+
+        fred.closeStream();
+        System.out.println("========== Done!!");
     }
-
-
-
 }
