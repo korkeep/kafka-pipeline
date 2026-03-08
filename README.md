@@ -1,4 +1,4 @@
-### BIGDATA-PIPELINE
+### KAFKA-PIPELINE
 
 Building a pipeline to effectively process bigdata using HDFS and Kafka 🐘
 
