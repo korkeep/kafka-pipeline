@@ -3,8 +3,6 @@ package com.load;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.hadoop.thirdparty.org.checkerframework.checker.units.qual.s;
-
 import com.pojo.EtlColumnPojo;
 import com.processor.Fred2Hdfs;
 import com.processor.Fred2Hdfs.FREQUENCY;
